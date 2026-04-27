@@ -1,0 +1,198 @@
+{
+  "datasets": [
+    {
+      "name": "e6a6664d",
+      "displayName": "usage",
+      "config": {
+        "version": "1.1",
+        "source": "amit.default.usage",
+        "dimensions": [
+          {
+            "name": "usage_date",
+            "expr": "source.usage_date",
+            "comment": "Date of the usage record, this field can be used for faster aggregation by date",
+            "displayName": "Usage Date"
+          },
+          {
+            "name": "sku_name",
+            "expr": "source.sku_name",
+            "comment": "Name of the SKU",
+            "displayName": "Sku Name"
+          },
+          {
+            "name": "usage_metadata",
+            "expr": "source.usage_metadata",
+            "comment": "System-provided metadata about the usage, including IDs for compute resources and jobs (if applicable). See [Analyze usage metadata](https://docs.databricks.com/en/admin/system-tables/billing.html#usage-metadata).",
+            "displayName": "Usage Metadata"
+          },
+          {
+            "name": "identity_metadata",
+            "expr": "source.identity_metadata",
+            "comment": "System-provided metadata about the identities involved in the usage. See [Analyze identity metadata](https://docs.databricks.com/en/admin/system-tables/billing.html#identity-metadata).",
+            "displayName": "Identity Metadata"
+          },
+          {
+            "name": "dbus",
+            "expr": "source.dbus",
+            "displayName": "Dbus"
+          },
+          {
+            "name": "list_cost",
+            "expr": "source.list_cost",
+            "displayName": "List Cost"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "72967b4c",
+      "displayName": "cost_by_date",
+      "queryLines": [
+        "select usage_date, sku_name, usage_metadata.endpoint_name, dbus,list_cost\n",
+        "  from usage where list_cost>0 "
+      ],
+      "catalog": "amit",
+      "schema": "default"
+    }
+  ],
+  "pages": [
+    {
+      "name": "39b12239",
+      "displayName": "Untitled page",
+      "layout": [
+        {
+          "widget": {
+            "name": "5e26290f",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "72967b4c",
+                  "fields": [
+                    {
+                      "name": "endpoint_name",
+                      "expression": "`endpoint_name`"
+                    },
+                    {
+                      "name": "daily(usage_date)",
+                      "expression": "DATE_TRUNC(\"DAY\", `usage_date`)"
+                    },
+                    {
+                      "name": "sum(list_cost)",
+                      "expression": "SUM(`list_cost`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "daily(usage_date)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(list_cost)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "endpoint_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "5263930b",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "e6a6664d",
+                  "fields": [
+                    {
+                      "name": "sku_name",
+                      "expression": "`sku_name`"
+                    },
+                    {
+                      "name": "daily(usage_date)",
+                      "expression": "DATE_TRUNC(\"DAY\", `usage_date`)"
+                    },
+                    {
+                      "name": "sum(list_cost)",
+                      "expression": "SUM(`list_cost`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "daily(usage_date)",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(list_cost)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "sku_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

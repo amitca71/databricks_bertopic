@@ -1,0 +1,551 @@
+{
+  "datasets": [
+    {
+      "name": "05ab99f1",
+      "displayName": "message_incitement_and_topic",
+      "queryLines": [
+        "with t_messages as (select id, text, translated, incitement.* from bertopic_input),\n",
+        "t_message_topic as (select id, model, timestamp, topic from topics)\n",
+        "select * from t_messages inner join t_message_topic using (id)\n",
+        "where :model=model \n",
+        "and (size(:topic) is null or array_contains(:topic, topic))\n",
+        "and (size(:pred_label) is null or array_contains(:pred_label, pred_label))\n"
+      ],
+      "parameters": [
+        {
+          "displayName": "model",
+          "keyword": "model",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "HDBSCAN"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "topic",
+          "keyword": "topic",
+          "dataType": "DECIMAL",
+          "complexType": "MULTI",
+          "defaultSelection": {
+            "operator": {
+              "operator": "AND"
+            }
+          }
+        },
+        {
+          "displayName": "pred_label",
+          "keyword": "pred_label",
+          "dataType": "STRING",
+          "complexType": "MULTI",
+          "defaultSelection": {
+            "operator": {
+              "operator": "AND"
+            }
+          }
+        }
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "3f08bbe9",
+      "displayName": "Unique Model Names Extracted from Topics",
+      "queryLines": [
+        "select distinct model from topic_info_local"
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "b11652c0",
+      "displayName": "topic_info",
+      "queryLines": [
+        "select topic, topic_name_gpt_5_2, ai_grade_meta_llama_3_3_70b  from topic_info_local \n",
+        "where model=:model and \n",
+        "(size(:topic) is null or array_contains(:topic, topic))"
+      ],
+      "parameters": [
+        {
+          "displayName": "model",
+          "keyword": "model",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "HDBSCAN"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "topic",
+          "keyword": "topic",
+          "dataType": "DECIMAL",
+          "complexType": "MULTI",
+          "defaultSelection": {
+            "operator": {
+              "operator": "AND"
+            }
+          }
+        }
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "e05cf66a",
+      "displayName": "distinct_incitement",
+      "queryLines": [
+        "select distinct incitement.pred_label from bertopic_input where incitement.pred_label is not null"
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "4e7dde31",
+      "displayName": "bertopic_input",
+      "config": {
+        "version": "1.1",
+        "source": "amit.bertopic.bertopic_input",
+        "dimensions": [
+          {
+            "name": "id",
+            "expr": "source.id",
+            "displayName": "Id"
+          },
+          {
+            "name": "text",
+            "expr": "source.text",
+            "displayName": "Text"
+          },
+          {
+            "name": "translated",
+            "expr": "source.translated",
+            "displayName": "Translated"
+          },
+          {
+            "name": "text_embedding",
+            "expr": "source.text_embedding",
+            "displayName": "Text Embedding"
+          },
+          {
+            "name": "incitement",
+            "expr": "source.incitement",
+            "displayName": "Incitement"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "e9535f2b",
+      "displayName": "Untitled page",
+      "layout": [
+        {
+          "widget": {
+            "name": "fe055109",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "05ab99f1",
+                  "fields": [
+                    {
+                      "name": "pred_label",
+                      "expression": "`pred_label`"
+                    },
+                    {
+                      "name": "topic",
+                      "expression": "`topic`"
+                    },
+                    {
+                      "name": "count(*)",
+                      "expression": "COUNT(`*`)"
+                    }
+                  ],
+                  "parameterValues": [
+                    {
+                      "keyword": "model",
+                      "selection": {}
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "topic",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(*)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "pred_label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": false
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 0,
+            "width": 10,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "32a5b697",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "b11652c0",
+                  "fields": [
+                    {
+                      "name": "topic",
+                      "expression": "`topic`"
+                    },
+                    {
+                      "name": "ai_grade_meta_llama_3_3_70b",
+                      "expression": "`ai_grade_meta_llama_3_3_70b`"
+                    },
+                    {
+                      "name": "topic_name_gpt_5_2",
+                      "expression": "`topic_name_gpt_5_2`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "topic"
+                  },
+                  {
+                    "fieldName": "ai_grade_meta_llama_3_3_70b"
+                  },
+                  {
+                    "fieldName": "topic_name_gpt_5_2"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 9,
+            "width": 11,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "4819d443",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "05ab99f1",
+                  "fields": [
+                    {
+                      "name": "topic",
+                      "expression": "`topic`"
+                    },
+                    {
+                      "name": "translated",
+                      "expression": "`translated`"
+                    },
+                    {
+                      "name": "pred_label",
+                      "expression": "`pred_label`"
+                    },
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "text",
+                      "expression": "`text`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "topic"
+                  },
+                  {
+                    "fieldName": "translated"
+                  },
+                  {
+                    "fieldName": "pred_label"
+                  },
+                  {
+                    "fieldName": "model"
+                  },
+                  {
+                    "fieldName": "text"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 12,
+            "width": 11,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "b6501b46",
+      "displayName": "Global Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "523d623d",
+            "queries": [
+              {
+                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145530c2817c28d5087ce3db2fb9c_model",
+                "query": {
+                  "datasetName": "3f08bbe9",
+                  "fields": [
+                    {
+                      "name": "model",
+                      "expression": "`model`"
+                    },
+                    {
+                      "name": "model_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_model",
+                "query": {
+                  "datasetName": "05ab99f1",
+                  "parameters": [
+                    {
+                      "name": "model",
+                      "keyword": "model"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "parameterName": "model",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_model"
+                  },
+                  {
+                    "fieldName": "model",
+                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145530c2817c28d5087ce3db2fb9c_model"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "bb9a6bc3",
+            "queries": [
+              {
+                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_topic",
+                "query": {
+                  "datasetName": "05ab99f1",
+                  "fields": [
+                    {
+                      "name": "topic",
+                      "expression": "`topic`"
+                    },
+                    {
+                      "name": "topic_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_topic",
+                "query": {
+                  "datasetName": "b11652c0",
+                  "parameters": [
+                    {
+                      "name": "topic",
+                      "keyword": "topic"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "topic",
+                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_topic"
+                  },
+                  {
+                    "parameterName": "topic",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_topic"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 1,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "hatress",
+            "queries": [
+              {
+                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f1455670bd1d12bb783172baa7c0cd_pred_label",
+                "query": {
+                  "datasetName": "e05cf66a",
+                  "fields": [
+                    {
+                      "name": "pred_label",
+                      "expression": "`pred_label`"
+                    },
+                    {
+                      "name": "pred_label_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_pred_label",
+                "query": {
+                  "datasetName": "05ab99f1",
+                  "parameters": [
+                    {
+                      "name": "pred_label",
+                      "keyword": "pred_label"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "hatress"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "pred_label",
+                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f1455670bd1d12bb783172baa7c0cd_pred_label"
+                  },
+                  {
+                    "parameterName": "pred_label",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_pred_label"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 1,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

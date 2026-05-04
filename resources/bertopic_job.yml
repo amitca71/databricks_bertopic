@@ -1,0 +1,55 @@
+resources:
+  jobs:
+    bertopic_pipeline:
+      name: bertopic_pipeline
+      tasks:
+        - task_key: embedding
+          notebook_task:
+            notebook_path: ../embedding.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+              input_table_name: ${var.input_table_name}
+              embedding_model: ${var.embedding_model}
+
+        - task_key: bertopic
+          depends_on:
+            - task_key: embedding
+          notebook_task:
+            notebook_path: ../bertopic.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+              input_table_name: ${var.input_table_name}
+
+        - task_key: topic_naming
+          depends_on:
+            - task_key: bertopic
+          notebook_task:
+            notebook_path: ../update_model_istruction.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              instruction_activity: topic_naming
+              source_schema: ${var.source_schema}
+              model_result_table: ${var.model_result_table}
+              instruct_model: ${var.instruct_model}
+
+        - task_key: evaluation
+          depends_on:
+            - task_key: bertopic
+          notebook_task:
+            notebook_path: ../update_model_istruction.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              instruction_activity: model_evaluation
+              source_schema: ${var.source_schema}
+              model_result_table: ${var.model_result_table}
+              instruct_model: ${var.instruct_model}
+
+        - task_key: incitement
+          notebook_task:
+            notebook_path: ../incitement.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+              input_table_name: ${var.input_table_name}

@@ -66,7 +66,7 @@
       "name": "b11652c0",
       "displayName": "topic_info",
       "queryLines": [
-        "select topic, topic_name_gpt_5_2, ai_grade_meta_llama_3_3_70b  from topic_info_local \n",
+        "select topic, topic_name, ai_grade , model from topic_info_local \n",
         "where model=:model and \n",
         "(size(:topic) is null or array_contains(:topic, topic))"
       ],
@@ -240,12 +240,16 @@
                       "expression": "`topic`"
                     },
                     {
-                      "name": "ai_grade_meta_llama_3_3_70b",
-                      "expression": "`ai_grade_meta_llama_3_3_70b`"
+                      "name": "topic_name",
+                      "expression": "`topic_name`"
                     },
                     {
-                      "name": "topic_name_gpt_5_2",
-                      "expression": "`topic_name_gpt_5_2`"
+                      "name": "ai_grade",
+                      "expression": "`ai_grade`"
+                    },
+                    {
+                      "name": "model",
+                      "expression": "`model`"
                     }
                   ],
                   "disaggregated": true
@@ -261,10 +265,13 @@
                     "fieldName": "topic"
                   },
                   {
-                    "fieldName": "ai_grade_meta_llama_3_3_70b"
+                    "fieldName": "topic_name"
                   },
                   {
-                    "fieldName": "topic_name_gpt_5_2"
+                    "fieldName": "ai_grade"
+                  },
+                  {
+                    "fieldName": "model"
                   }
                 ]
               }

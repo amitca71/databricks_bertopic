@@ -24,7 +24,7 @@ resources:
 
         - task_key: topic_naming
           depends_on:
-            - task_key: bertopic
+            - task_key: evaluation_refined_topics
           notebook_task:
             notebook_path: ../update_model_istruction.ipynb
             base_parameters:
@@ -37,6 +37,37 @@ resources:
         - task_key: evaluation
           depends_on:
             - task_key: bertopic
+          notebook_task:
+            notebook_path: ../update_model_istruction.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              instruction_activity: model_evaluation
+              source_schema: ${var.source_schema}
+              model_result_table: ${var.model_result_table}
+              instruct_model: ${var.instruct_model}
+
+        - task_key: enqueue_refinement_queue
+          depends_on:
+            - task_key: evaluation
+          notebook_task:
+            notebook_path: ../enqueue_refinement_queue.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+
+        - task_key: process_refinement_queue
+          depends_on:
+            - task_key: enqueue_refinement_queue
+          notebook_task:
+            notebook_path: ../process_refinement_queue.ipynb
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+              input_table_name: ${var.input_table_name}
+
+        - task_key: evaluation_refined_topics
+          depends_on:
+            - task_key: process_refinement_queue
           notebook_task:
             notebook_path: ../update_model_istruction.ipynb
             base_parameters:

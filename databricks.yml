@@ -17,6 +17,24 @@ variables:
     default: topic_info_local
   instruct_model:
     default: databricks-meta-llama-3-3-70b-instruct
+  vector_search_endpoint_name:
+    default: bertopic_vector_search
+  vector_search_endpoint_type:
+    default: STANDARD
+  vector_search_index_name:
+    default: bertopic_input_index
+  vector_search_pipeline_type:
+    default: TRIGGERED
+  vector_search_primary_key:
+    default: id
+  vector_search_embedding_source_column:
+    default: text
+  vector_search_columns_to_sync:
+    default: id,text,translated,incitement_label,incitement_confidence,incitement_prob_incitement
+  vector_search_sync_computed_embeddings:
+    default: "false"
+  vector_search_sync_index:
+    default: "true"
 
 targets:
   dev:

@@ -155,6 +155,57 @@
       ],
       "catalog": "amit",
       "schema": "bertopic"
+    },
+    {
+      "name": "vector_search_results",
+      "displayName": "semantic_vector_search",
+      "queryLines": [
+        "with search_results as (\n",
+        "  select *\n",
+        "  from vector_search(\n",
+        "    index => 'amit.bertopic.bertopic_input_index',\n",
+        "    query_text => :semantic_query,\n",
+        "    num_results => 50\n",
+        "  )\n",
+        ")\n",
+        "select id, text, translated, incitement_label, incitement_confidence, incitement_prob_incitement\n",
+        "from search_results\n",
+        "where :incitement_filter = 'All' or incitement_label = :incitement_filter\n"
+      ],
+      "parameters": [
+        {
+          "displayName": "semantic_query",
+          "keyword": "semantic_query",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "incitement"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "displayName": "incitement_filter",
+          "keyword": "incitement_filter",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "All"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
     }
   ],
   "pages": [
@@ -172,8 +223,8 @@
                   "datasetName": "91eebd94",
                   "fields": [
                     {
-                      "name": "incitment_label",
-                      "expression": "`incitment_label`"
+                      "name": "incitement_label",
+                      "expression": "`incitement_label`"
                     },
                     {
                       "name": "full_topic",
@@ -208,7 +259,7 @@
                   }
                 },
                 "color": {
-                  "fieldName": "incitment_label",
+                  "fieldName": "incitement_label",
                   "scale": {
                     "type": "categorical"
                   }
@@ -314,8 +365,8 @@
                       "expression": "`topic`"
                     },
                     {
-                      "name": "incitment_label",
-                      "expression": "`incitment_label`"
+                      "name": "incitement_label",
+                      "expression": "`incitement_label`"
                     }
                   ],
                   "disaggregated": true
@@ -340,7 +391,7 @@
                     "fieldName": "topic"
                   },
                   {
-                    "fieldName": "incitment_label"
+                    "fieldName": "incitement_label"
                   }
                 ]
               }
@@ -351,6 +402,86 @@
             "y": 7,
             "width": 11,
             "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "semantic_search",
+      "displayName": "Semantic Search",
+      "layout": [
+        {
+          "widget": {
+            "name": "vector_search_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "vector_search_results",
+                  "fields": [
+                    {
+                      "name": "id",
+                      "expression": "`id`"
+                    },
+                    {
+                      "name": "incitement_label",
+                      "expression": "`incitement_label`"
+                    },
+                    {
+                      "name": "incitement_confidence",
+                      "expression": "`incitement_confidence`"
+                    },
+                    {
+                      "name": "incitement_prob_incitement",
+                      "expression": "`incitement_prob_incitement`"
+                    },
+                    {
+                      "name": "translated",
+                      "expression": "`translated`"
+                    },
+                    {
+                      "name": "text",
+                      "expression": "`text`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "id"
+                  },
+                  {
+                    "fieldName": "incitement_label"
+                  },
+                  {
+                    "fieldName": "incitement_confidence"
+                  },
+                  {
+                    "fieldName": "incitement_prob_incitement"
+                  },
+                  {
+                    "fieldName": "translated"
+                  },
+                  {
+                    "fieldName": "text"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 1,
+            "y": 0,
+            "width": 11,
+            "height": 10
           }
         }
       ],

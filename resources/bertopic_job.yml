@@ -84,3 +84,23 @@ resources:
               source_catalog: ${var.source_catalog}
               source_schema: ${var.source_schema}
               input_table_name: ${var.input_table_name}
+
+        - task_key: vector_search_setup
+          depends_on:
+            - task_key: incitement
+          notebook_task:
+            notebook_path: ../vector_search_setup.py
+            base_parameters:
+              source_catalog: ${var.source_catalog}
+              source_schema: ${var.source_schema}
+              input_table_name: ${var.input_table_name}
+              vector_search_endpoint_name: ${var.vector_search_endpoint_name}
+              vector_search_endpoint_type: ${var.vector_search_endpoint_type}
+              vector_search_index_name: ${var.vector_search_index_name}
+              vector_search_pipeline_type: ${var.vector_search_pipeline_type}
+              vector_search_primary_key: ${var.vector_search_primary_key}
+              vector_search_embedding_source_column: ${var.vector_search_embedding_source_column}
+              vector_search_embedding_model_endpoint_name: ${var.embedding_model}
+              vector_search_columns_to_sync: ${var.vector_search_columns_to_sync}
+              vector_search_sync_computed_embeddings: ${var.vector_search_sync_computed_embeddings}
+              vector_search_sync_index: ${var.vector_search_sync_index}

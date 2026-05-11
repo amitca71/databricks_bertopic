@@ -66,34 +66,35 @@
       "name": "b11652c0",
       "displayName": "topic_info",
       "queryLines": [
-        "select topic, topic_name, ai_grade , model from topic_info_local \n",
-        "where model=:model and \n",
-        "(size(:topic) is null or array_contains(:topic, topic))"
+        "select * from v2_topic_info_with_scores_layer_1 \n",
+        "where   \n",
+        "(size(:full_topic) is null or array_contains(:full_topic, full_topic)) and execution_id = :execution_id\n",
+        "order by full_topic"
       ],
       "parameters": [
         {
-          "displayName": "model",
-          "keyword": "model",
+          "displayName": "full_topic",
+          "keyword": "full_topic",
+          "dataType": "STRING",
+          "complexType": "MULTI",
+          "defaultSelection": {
+            "operator": {
+              "operator": "AND"
+            }
+          }
+        },
+        {
+          "displayName": "execution_id",
+          "keyword": "execution_id",
           "dataType": "STRING",
           "defaultSelection": {
             "values": {
               "dataType": "STRING",
               "values": [
                 {
-                  "value": "HDBSCAN"
+                  "value": "2026_05_08_15_40_13"
                 }
               ]
-            }
-          }
-        },
-        {
-          "displayName": "topic",
-          "keyword": "topic",
-          "dataType": "DECIMAL",
-          "complexType": "MULTI",
-          "defaultSelection": {
-            "operator": {
-              "operator": "AND"
             }
           }
         }
@@ -111,47 +112,49 @@
       "schema": "bertopic"
     },
     {
-      "name": "4e7dde31",
-      "displayName": "bertopic_input",
-      "config": {
-        "version": "1.1",
-        "source": "amit.bertopic.bertopic_input",
-        "dimensions": [
-          {
-            "name": "id",
-            "expr": "source.id",
-            "displayName": "Id"
-          },
-          {
-            "name": "text",
-            "expr": "source.text",
-            "displayName": "Text"
-          },
-          {
-            "name": "translated",
-            "expr": "source.translated",
-            "displayName": "Translated"
-          },
-          {
-            "name": "text_embedding",
-            "expr": "source.text_embedding",
-            "displayName": "Text Embedding"
-          },
-          {
-            "name": "incitement",
-            "expr": "source.incitement",
-            "displayName": "Incitement"
+      "name": "91eebd94",
+      "displayName": "enriched_messages",
+      "queryLines": [
+        "select * from v3_messages_sentiment_topic_consolidated where execution_id = :execution_id\n"
+      ],
+      "parameters": [
+        {
+          "displayName": "execution_id",
+          "keyword": "execution_id",
+          "dataType": "STRING",
+          "defaultSelection": {
+            "values": {
+              "dataType": "STRING",
+              "values": [
+                {
+                  "value": "All"
+                }
+              ]
+            }
           }
-        ],
-        "measures": [
-          {
-            "name": "count",
-            "expr": "COUNT(*)",
-            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
-            "displayName": "Count"
-          }
-        ]
-      }
+        }
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "5c6d6c5a",
+      "displayName": "distinct_topic",
+      "queryLines": [
+        "select full_topic from v1_topic_info_with_scores_and_names order by father_topic, topic\n",
+        "\n"
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
+    },
+    {
+      "name": "14906c2c",
+      "displayName": "distinct execution",
+      "queryLines": [
+        "select distinct execution_id from topic_info_local"
+      ],
+      "catalog": "amit",
+      "schema": "bertopic"
     }
   ],
   "pages": [
@@ -161,30 +164,24 @@
       "layout": [
         {
           "widget": {
-            "name": "fe055109",
+            "name": "ddd9b040",
             "queries": [
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "05ab99f1",
+                  "datasetName": "91eebd94",
                   "fields": [
                     {
-                      "name": "pred_label",
-                      "expression": "`pred_label`"
+                      "name": "incitment_label",
+                      "expression": "`incitment_label`"
                     },
                     {
-                      "name": "topic",
-                      "expression": "`topic`"
+                      "name": "full_topic",
+                      "expression": "`full_topic`"
                     },
                     {
                       "name": "count(*)",
                       "expression": "COUNT(`*`)"
-                    }
-                  ],
-                  "parameterValues": [
-                    {
-                      "keyword": "model",
-                      "selection": {}
                     }
                   ],
                   "disaggregated": false
@@ -193,10 +190,13 @@
             ],
             "spec": {
               "version": 3,
+              "frame": {
+                "showDescription": false
+              },
               "widgetType": "bar",
               "encodings": {
                 "x": {
-                  "fieldName": "topic",
+                  "fieldName": "full_topic",
                   "scale": {
                     "type": "categorical"
                   }
@@ -208,13 +208,10 @@
                   }
                 },
                 "color": {
-                  "fieldName": "pred_label",
+                  "fieldName": "incitment_label",
                   "scale": {
                     "type": "categorical"
                   }
-                },
-                "label": {
-                  "show": false
                 }
               }
             }
@@ -222,13 +219,13 @@
           "position": {
             "x": 1,
             "y": 0,
-            "width": 10,
-            "height": 9
+            "width": 11,
+            "height": 7
           }
         },
         {
           "widget": {
-            "name": "32a5b697",
+            "name": "cf15b3f7",
             "queries": [
               {
                 "name": "main_query",
@@ -236,20 +233,24 @@
                   "datasetName": "b11652c0",
                   "fields": [
                     {
-                      "name": "topic",
-                      "expression": "`topic`"
+                      "name": "full_topic",
+                      "expression": "`full_topic`"
                     },
                     {
-                      "name": "topic_name",
-                      "expression": "`topic_name`"
+                      "name": "title",
+                      "expression": "`title`"
                     },
                     {
-                      "name": "ai_grade",
-                      "expression": "`ai_grade`"
+                      "name": "description",
+                      "expression": "`description`"
                     },
                     {
-                      "name": "model",
-                      "expression": "`model`"
+                      "name": "count",
+                      "expression": "`count`"
+                    },
+                    {
+                      "name": "score",
+                      "expression": "`score`"
                     }
                   ],
                   "disaggregated": true
@@ -262,16 +263,19 @@
               "encodings": {
                 "columns": [
                   {
-                    "fieldName": "topic"
+                    "fieldName": "full_topic"
                   },
                   {
-                    "fieldName": "topic_name"
+                    "fieldName": "title"
                   },
                   {
-                    "fieldName": "ai_grade"
+                    "fieldName": "description"
                   },
                   {
-                    "fieldName": "model"
+                    "fieldName": "count"
+                  },
+                  {
+                    "fieldName": "score"
                   }
                 ]
               }
@@ -279,39 +283,39 @@
           },
           "position": {
             "x": 1,
-            "y": 9,
+            "y": 13,
             "width": 11,
-            "height": 3
+            "height": 8
           }
         },
         {
           "widget": {
-            "name": "4819d443",
+            "name": "f7d50ef2",
             "queries": [
               {
                 "name": "main_query",
                 "query": {
-                  "datasetName": "05ab99f1",
+                  "datasetName": "91eebd94",
                   "fields": [
                     {
-                      "name": "topic",
-                      "expression": "`topic`"
+                      "name": "full_topic",
+                      "expression": "`full_topic`"
                     },
                     {
                       "name": "translated",
                       "expression": "`translated`"
                     },
                     {
-                      "name": "pred_label",
-                      "expression": "`pred_label`"
-                    },
-                    {
-                      "name": "model",
-                      "expression": "`model`"
-                    },
-                    {
                       "name": "text",
                       "expression": "`text`"
+                    },
+                    {
+                      "name": "topic",
+                      "expression": "`topic`"
+                    },
+                    {
+                      "name": "incitment_label",
+                      "expression": "`incitment_label`"
                     }
                   ],
                   "disaggregated": true
@@ -324,19 +328,19 @@
               "encodings": {
                 "columns": [
                   {
-                    "fieldName": "topic"
+                    "fieldName": "full_topic"
                   },
                   {
                     "fieldName": "translated"
                   },
                   {
-                    "fieldName": "pred_label"
-                  },
-                  {
-                    "fieldName": "model"
-                  },
-                  {
                     "fieldName": "text"
+                  },
+                  {
+                    "fieldName": "topic"
+                  },
+                  {
+                    "fieldName": "incitment_label"
                   }
                 ]
               }
@@ -344,9 +348,9 @@
           },
           "position": {
             "x": 1,
-            "y": 12,
+            "y": 7,
             "width": 11,
-            "height": 7
+            "height": 6
           }
         }
       ],
@@ -359,19 +363,19 @@
       "layout": [
         {
           "widget": {
-            "name": "523d623d",
+            "name": "adbe9503",
             "queries": [
               {
-                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145530c2817c28d5087ce3db2fb9c_model",
+                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b885b571545968c1f8bc923e156_full_topic",
                 "query": {
-                  "datasetName": "3f08bbe9",
+                  "datasetName": "5c6d6c5a",
                   "fields": [
                     {
-                      "name": "model",
-                      "expression": "`model`"
+                      "name": "full_topic",
+                      "expression": "`full_topic`"
                     },
                     {
-                      "name": "model_associativity",
+                      "name": "full_topic_associativity",
                       "expression": "COUNT_IF(`associative_filter_predicate_group`)"
                     }
                   ],
@@ -379,13 +383,13 @@
                 }
               },
               {
-                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_model",
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_full_topic",
                 "query": {
-                  "datasetName": "05ab99f1",
+                  "datasetName": "b11652c0",
                   "parameters": [
                     {
-                      "name": "model",
-                      "keyword": "model"
+                      "name": "full_topic",
+                      "keyword": "full_topic"
                     }
                   ],
                   "disaggregated": false
@@ -397,16 +401,16 @@
               "frame": {
                 "showTitle": true
               },
-              "widgetType": "filter-single-select",
+              "widgetType": "filter-multi-select",
               "encodings": {
                 "fields": [
                   {
-                    "parameterName": "model",
-                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_model"
+                    "fieldName": "full_topic",
+                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b885b571545968c1f8bc923e156_full_topic"
                   },
                   {
-                    "fieldName": "model",
-                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145530c2817c28d5087ce3db2fb9c_model"
+                    "parameterName": "full_topic",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_full_topic"
                   }
                 ]
               }
@@ -421,19 +425,19 @@
         },
         {
           "widget": {
-            "name": "bb9a6bc3",
+            "name": "a94af14e",
             "queries": [
               {
-                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_topic",
+                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b8ced221c5e86a130c4d5afd26d_execution_id",
                 "query": {
-                  "datasetName": "05ab99f1",
+                  "datasetName": "14906c2c",
                   "fields": [
                     {
-                      "name": "topic",
-                      "expression": "`topic`"
+                      "name": "execution_id",
+                      "expression": "`execution_id`"
                     },
                     {
-                      "name": "topic_associativity",
+                      "name": "execution_id_associativity",
                       "expression": "COUNT_IF(`associative_filter_predicate_group`)"
                     }
                   ],
@@ -441,13 +445,26 @@
                 }
               },
               {
-                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_topic",
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b0966231e528688b77a2104f14e_execution_id",
+                "query": {
+                  "datasetName": "91eebd94",
+                  "parameters": [
+                    {
+                      "name": "execution_id",
+                      "keyword": "execution_id"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_execution_id",
                 "query": {
                   "datasetName": "b11652c0",
                   "parameters": [
                     {
-                      "name": "topic",
-                      "keyword": "topic"
+                      "name": "execution_id",
+                      "keyword": "execution_id"
                     }
                   ],
                   "disaggregated": false
@@ -459,16 +476,32 @@
               "frame": {
                 "showTitle": true
               },
-              "widgetType": "filter-multi-select",
+              "selection": {
+                "defaultSelection": {
+                  "values": {
+                    "dataType": "STRING",
+                    "values": [
+                      {
+                        "value": "2026_05_08_15_40_13"
+                      }
+                    ]
+                  }
+                }
+              },
+              "widgetType": "filter-single-select",
               "encodings": {
                 "fields": [
                   {
-                    "fieldName": "topic",
-                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_topic"
+                    "fieldName": "execution_id",
+                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b8ced221c5e86a130c4d5afd26d_execution_id"
                   },
                   {
-                    "parameterName": "topic",
-                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_topic"
+                    "parameterName": "execution_id",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f14b0966231e528688b77a2104f14e_execution_id"
+                  },
+                  {
+                    "parameterName": "execution_id",
+                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145545abe19bb9d1267594c998765_execution_id"
                   }
                 ]
               }
@@ -477,69 +510,6 @@
           "position": {
             "x": 0,
             "y": 2,
-            "width": 1,
-            "height": 2
-          }
-        },
-        {
-          "widget": {
-            "name": "hatress",
-            "queries": [
-              {
-                "name": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f1455670bd1d12bb783172baa7c0cd_pred_label",
-                "query": {
-                  "datasetName": "e05cf66a",
-                  "fields": [
-                    {
-                      "name": "pred_label",
-                      "expression": "`pred_label`"
-                    },
-                    {
-                      "name": "pred_label_associativity",
-                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              },
-              {
-                "name": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_pred_label",
-                "query": {
-                  "datasetName": "05ab99f1",
-                  "parameters": [
-                    {
-                      "name": "pred_label",
-                      "keyword": "pred_label"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              }
-            ],
-            "spec": {
-              "version": 2,
-              "frame": {
-                "showTitle": true,
-                "title": "hatress"
-              },
-              "widgetType": "filter-multi-select",
-              "encodings": {
-                "fields": [
-                  {
-                    "fieldName": "pred_label",
-                    "queryName": "dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f1455670bd1d12bb783172baa7c0cd_pred_label"
-                  },
-                  {
-                    "parameterName": "pred_label",
-                    "queryName": "parameter_dashboards/01f1425e745118cf87a3d81fdf2ee5a7/datasets/01f145513c3a1d1d8bc2e03c50f8581d_pred_label"
-                  }
-                ]
-              }
-            }
-          },
-          "position": {
-            "x": 0,
-            "y": 4,
             "width": 1,
             "height": 2
           }

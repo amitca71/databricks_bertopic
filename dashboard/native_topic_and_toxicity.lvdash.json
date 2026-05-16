@@ -4,7 +4,7 @@
       "name": "05ab99f1",
       "displayName": "message_incitement_and_topic",
       "queryLines": [
-        "with t_messages as (select id, text, translated, incitement.* from bertopic_input),\n",
+        "with t_messages as (select id, text, translated, incitement.* from arabic_offensive_comment_detection_annotation_input),\n",
         "t_message_topic as (select id, model, timestamp, topic from topics)\n",
         "select * from t_messages inner join t_message_topic using (id)\n",
         "where :model=model \n",
@@ -106,7 +106,7 @@
       "name": "e05cf66a",
       "displayName": "distinct_incitement",
       "queryLines": [
-        "select distinct incitement.pred_label from bertopic_input where incitement.pred_label is not null"
+        "select distinct incitement.pred_label from arabic_offensive_comment_detection_annotation_input where incitement.pred_label is not null"
       ],
       "catalog": "amit",
       "schema": "bertopic"
@@ -127,7 +127,7 @@
               "dataType": "STRING",
               "values": [
                 {
-                  "value": "All"
+                  "value": "2026_05_16_09_38_35"
                 }
               ]
             }
@@ -223,8 +223,8 @@
                   "datasetName": "91eebd94",
                   "fields": [
                     {
-                      "name": "incitement_label",
-                      "expression": "`incitement_label`"
+                      "name": "incitment_label",
+                      "expression": "`incitment_label`"
                     },
                     {
                       "name": "full_topic",
@@ -259,7 +259,7 @@
                   }
                 },
                 "color": {
-                  "fieldName": "incitement_label",
+                  "fieldName": "incitment_label",
                   "scale": {
                     "type": "categorical"
                   }
@@ -365,8 +365,8 @@
                       "expression": "`topic`"
                     },
                     {
-                      "name": "incitement_label",
-                      "expression": "`incitement_label`"
+                      "name": "incitment_label",
+                      "expression": "`incitment_label`"
                     }
                   ],
                   "disaggregated": true
@@ -391,7 +391,7 @@
                     "fieldName": "topic"
                   },
                   {
-                    "fieldName": "incitement_label"
+                    "fieldName": "incitment_label"
                   }
                 ]
               }
